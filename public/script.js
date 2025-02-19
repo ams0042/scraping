@@ -2,22 +2,34 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         // Cargar productos solo si estamos en index.html
         const contenedorProductos = document.querySelector(".productos");
+        const searchInput = document.getElementById("searchInput");
+        
         if (contenedorProductos) {
             const responseProductos = await fetch("http://localhost:3000/productos");
             if (!responseProductos.ok) {
                 throw new Error("Error al obtener los productos");
             }
             const productos = await responseProductos.json();
-
-            productos.forEach(producto => {
-                const div = document.createElement("div");
-                div.classList.add("producto");
-                div.innerHTML = `
-                    <img src="${producto.imagen}" alt="${producto.titulo}">
-                    <h2>${producto.titulo}</h2>
-                    <p>${producto.precio}</p>
-                `;
-                contenedorProductos.appendChild(div);
+            
+            const mostrarProductos = (filtro = "") => {
+                contenedorProductos.innerHTML = "";
+                productos.filter(producto => producto.titulo.toLowerCase().includes(filtro.toLowerCase()))
+                         .forEach(producto => {
+                             const div = document.createElement("div");
+                             div.classList.add("producto");
+                             div.innerHTML = `
+                                 <img src="${producto.imagen}" alt="${producto.titulo}">
+                                 <h2>${producto.titulo}</h2>
+                                 <p>${producto.precio}</p>
+                             `;
+                             contenedorProductos.appendChild(div);
+                         });
+            };
+            
+            mostrarProductos();
+            
+            searchInput.addEventListener("input", (event) => {
+                mostrarProductos(event.target.value);
             });
         }
 
